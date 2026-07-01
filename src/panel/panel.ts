@@ -1,5 +1,6 @@
+/// <reference types="chrome"/>
 import css from './panel.css';
-import type { DeckStats, TileStat } from '../engine/deck';
+import type { DeckStats } from '../engine/deck';
 
 let gridEl: HTMLElement | null = null;
 let totalEl: HTMLElement | null = null;
