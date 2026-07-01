@@ -3,6 +3,11 @@
   "name": "Carcassonne Tile Tracker",
   "version": "0.1.0",
   "description": "Tracks remaining tiles in BGA Carcassonne games. Shows a floating panel with tile thumbnails, remaining count, and draw probability.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
   "host_permissions": [
     "*://boardgamearena.com/*",
     "*://*.boardgamearena.com/*"
