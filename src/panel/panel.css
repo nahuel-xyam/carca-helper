@@ -69,6 +69,58 @@
   justify-content: space-between;
 }
 
+/* ── Player scores ── */
+.ctt-scores {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0 2px;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+  margin-bottom: 2px;
+  flex-wrap: wrap;
+}
+
+.ctt-score-player {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 400;
+  opacity: 0.85;
+}
+
+.ctt-score-player.ctt-score--active {
+  opacity: 1;
+  font-weight: 700;
+}
+
+.ctt-score-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.4);
+}
+
+.ctt-score-name {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ctt-score-val {
+  font-weight: 700;
+  margin-left: 2px;
+  color: #f5c842;
+}
+
+.ctt-score-sep {
+  font-size: 10px;
+  opacity: 0.5;
+  font-style: italic;
+}
+
 .ctt-legend {
   display: flex;
   gap: 10px;

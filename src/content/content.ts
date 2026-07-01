@@ -1,4 +1,4 @@
-import { Deck, type DeckStats } from '../engine/deck';
+import { Deck, type DeckStats, type PlayerInfo } from '../engine/deck';
 import { createPanel, renderTiles } from '../panel/panel';
 
 // This content script only runs in the Carcassonne game iframe
@@ -26,7 +26,8 @@ function init(): void {
       const placedTypes: string[] = ev.data.placedTypes ?? [];
       const handTypes: string[] = ev.data.handTypes ?? [];
       const deckSize: number = typeof ev.data.deckSize === 'number' ? ev.data.deckSize : 0;
-      deck.setState(placedTypes, handTypes, deckSize);
+      const players: PlayerInfo[] = Array.isArray(ev.data.players) ? ev.data.players : [];
+      deck.setState(placedTypes, handTypes, deckSize, players);
       renderTiles(deck.stats());
     }
   });

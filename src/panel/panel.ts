@@ -71,6 +71,12 @@ export function createPanel(getCombinedProb: (a: string, b: string) => number): 
   headerTop.appendChild(totalEl);
   header.appendChild(headerTop);
 
+  // Scores row (populated by renderTiles)
+  const scoresRow = document.createElement('div');
+  scoresRow.className = 'ctt-scores';
+  scoresRow.id = 'ctt-scores';
+  header.appendChild(scoresRow);
+
   // Legend
   const legend = document.createElement('div');
   legend.className = 'ctt-legend';
@@ -106,12 +112,24 @@ export function createPanel(getCombinedProb: (a: string, b: string) => number): 
 }
 
 /** Re-render the tile grid with the latest stats. */
-export function renderTiles({ tiles: stats, opponentDrawsNext }: DeckStats): void {
+export function renderTiles({ tiles: stats, opponentDrawsNext, players }: DeckStats): void {
   if (!gridEl || !totalEl) return;
 
   const totalInDeck = stats.reduce((s, t) => s + t.inDeck, 0);
   const totalAll = stats.reduce((s, t) => s + t.total, 0);
   totalEl.textContent = `${totalInDeck} / ${totalAll} in deck`;
+
+  // Render player scores
+  const scoresRow = document.getElementById('ctt-scores');
+  if (scoresRow && players.length > 0) {
+    scoresRow.innerHTML = players
+      .map((p) => {
+        const dot = `<span class="ctt-score-dot" style="background:#${p.color.replace(/^#/,'')}"></span>`;
+        const active = p.isActive ? ' ctt-score--active' : '';
+        return `<span class="ctt-score-player${active}">${dot}<span class="ctt-score-name">${p.name}</span><span class="ctt-score-val">${p.score}</span></span>`;
+      })
+      .join('<span class="ctt-score-sep">vs</span>');
+  }
 
   // Update legend label to clarify whose "next draw" it is
   const nextLabel = panelEl!.querySelector('.ctt-legend-item:first-child');

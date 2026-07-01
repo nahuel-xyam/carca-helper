@@ -21,10 +21,19 @@ export interface TileStat {
   restPct: number;
 }
 
+export interface PlayerInfo {
+  id: string;
+  name: string;
+  color: string;
+  score: number;
+  isActive: boolean;
+}
+
 export interface DeckStats {
   tiles: TileStat[];
   /** True when the current player holds a tile and the opponent draws next. */
   opponentDrawsNext: boolean;
+  players: PlayerInfo[];
 }
 
 // ── Probability helpers ───────────────────────────────────────────────────────
@@ -60,6 +69,7 @@ export class Deck {
    * hand tile doesn't inflate our estimates.
    */
   private bgaDeckSize = 0;
+  private _players: PlayerInfo[] = [];
 
   constructor() {
     for (const t of TILES) {
@@ -76,8 +86,9 @@ export class Deck {
    * @param handTypes BGA numeric type strings for every tile in the current
    *   player's hand (usually 0 or 1 in Carcassonne).
    */
-  setState(placedTypes: string[], handTypes: string[], deckSize = 0): void {
+  setState(placedTypes: string[], handTypes: string[], deckSize = 0, players: PlayerInfo[] = []): void {
     this.bgaDeckSize = deckSize;
+    this._players = players;
     // Reset to full counts
     for (const t of TILES) {
       this.deckCounts.set(t.id, t.count);
@@ -141,7 +152,7 @@ export class Deck {
         restPct,
       };
     });
-    return { tiles, opponentDrawsNext };
+    return { tiles, opponentDrawsNext, players: this._players };
   }
 
   /**

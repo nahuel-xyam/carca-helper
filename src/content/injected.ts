@@ -15,6 +15,14 @@ const SOURCE = 'CTT_';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyObj = Record<string, any>;
 
+export interface PlayerInfo {
+  id: string;
+  name: string;
+  color: string;
+  score: number;
+  isActive: boolean;
+}
+
 /** Read current game state from gamedatas and post UPDATE_STATE. */
 function sendState(gameui: AnyObj): void {
   const gd: AnyObj = gameui['gamedatas'];
@@ -36,8 +44,23 @@ function sendState(gameui: AnyObj): void {
   // hand tiles). Use it as N for probability calculations.
   const deckSize: number = parseInt(String(gd['deck_size'] ?? '0'), 10);
 
+  // Player names + scores from gamedatas.players
+  const myId = String(gameui['player_id'] ?? '');
+  const activeId = String(gd['gamestate']?.['active_player'] ?? myId);
+  const playersObj: AnyObj = gd['players'] ?? {};
+  const players: PlayerInfo[] = Object.values(playersObj).map((p: AnyObj) => {
+    const id = String(p['id'] ?? p['player_id'] ?? '');
+    return {
+      id,
+      name: String(p['name'] ?? p['player_name'] ?? ''),
+      color: '#' + String(p['color'] ?? '888888').replace(/^#/, ''),
+      score: parseInt(String(p['score'] ?? '0'), 10) || 0,
+      isActive: id === activeId,
+    };
+  });
+
   window.postMessage(
-    { source: SOURCE, type: 'UPDATE_STATE', placedTypes, handTypes, deckSize },
+    { source: SOURCE, type: 'UPDATE_STATE', placedTypes, handTypes, deckSize, players },
     '*',
   );
 }
