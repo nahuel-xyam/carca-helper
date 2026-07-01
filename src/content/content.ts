@@ -1,4 +1,4 @@
-import { Deck, type DeckStats } from '../engine/deck';
+import { Deck, type DeckStats, type PlayerInfo } from '../engine/deck';
 import { createPanel, renderTiles } from '../panel/panel';
 
 // This content script only runs in the Carcassonne game iframe
@@ -7,7 +7,7 @@ import { createPanel, renderTiles } from '../panel/panel';
 function init(): void {
   const deck = new Deck();
 
-  createPanel();
+  createPanel((a, b) => deck.combinedProb(a, b));
   renderTiles(deck.stats());
 
   // Inject the page-context script so it can access window.WebSocket and window.gameui.
@@ -26,7 +26,13 @@ function init(): void {
       const placedTypes: string[] = ev.data.placedTypes ?? [];
       const handTypes: string[] = ev.data.handTypes ?? [];
       const deckSize: number = typeof ev.data.deckSize === 'number' ? ev.data.deckSize : 0;
-      deck.setState(placedTypes, handTypes, deckSize);
+      const players: PlayerInfo[] = Array.isArray(ev.data.players)
+        ? (ev.data.players as PlayerInfo[]).map((p) => ({
+            ...p,
+            partialScore: typeof p.partialScore === 'number' ? p.partialScore : p.score,
+          }))
+        : [];
+      deck.setState(placedTypes, handTypes, deckSize, players);
       renderTiles(deck.stats());
     }
   });

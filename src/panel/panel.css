@@ -44,7 +44,7 @@
   bottom: 64px;
   left: 16px;
   width: 512px;
-  max-width: calc(100% - 32px);
+  max-width: min(512px, calc(100vw - 32px));
   background: #faf6ef;
   border-radius: 10px;
   box-shadow: 0 6px 28px rgba(0, 0, 0, 0.35);
@@ -67,6 +67,66 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+/* ── Player scores ── */
+.ctt-scores {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0 2px;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+  margin-bottom: 2px;
+  flex-wrap: wrap;
+}
+
+.ctt-score-player {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 400;
+  opacity: 0.85;
+}
+
+.ctt-score-player.ctt-score--active {
+  opacity: 1;
+  font-weight: 700;
+}
+
+.ctt-score-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.4);
+}
+
+.ctt-score-name {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ctt-score-val {
+  font-weight: 700;
+  margin-left: 2px;
+  color: #f5c842;
+}
+
+.ctt-score-partial {
+  font-weight: 400;
+  font-size: 10px;
+  color: #e0c060;
+  margin-left: 2px;
+  opacity: 0.85;
+}
+
+.ctt-score-sep {
+  font-size: 10px;
+  opacity: 0.5;
+  font-style: italic;
 }
 
 .ctt-legend {
@@ -107,7 +167,7 @@
 .ctt-grid {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  gap: 4px;
+  gap: 0;
   padding: 8px;
 }
 
@@ -117,7 +177,7 @@
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  padding: 4px 2px 3px;
+  padding: 4px 0 3px;
   border-radius: 6px;
   transition: background 0.1s;
 }
@@ -182,6 +242,41 @@
   outline: 2px solid #2a9d8f;
   outline-offset: 1px;
   border-radius: 4px;
+}
+
+.ctt-cell--selected {
+  background: #e8d5b0;
+}
+
+.ctt-cell--selected .ctt-img {
+  outline: 2px solid #c8a97e;
+  outline-offset: 1px;
+  border-radius: 4px;
+}
+
+/* Combined probability bar in header */
+.ctt-combined {
+  font-size: 11px;
+  font-weight: 400;
+  color: #f5e6d0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 0 1px;
+  border-top: 1px solid rgba(255,255,255,0.15);
+  margin-top: 2px;
+}
+
+.ctt-combined-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #f5c842;
+  flex-shrink: 0;
+}
+
+.ctt-combined strong {
+  color: #f5c842;
 }
 
 .ctt-cell--depleted .ctt-label { color: #bbb; }
