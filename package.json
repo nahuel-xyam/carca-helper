@@ -1,0 +1,17 @@
+{
+  "name": "carcassonne-tile-tracker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "watch": "node build.mjs --watch",
+    "clean": "rm -rf dist",
+    "copy-tiles": "cp -r ../bga-extension/public/tiles public/"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.268",
+    "esbuild": "^0.23.0",
+    "typescript": "^5.5.0"
+  }
+}
