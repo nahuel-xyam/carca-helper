@@ -115,6 +115,14 @@
   color: #f5c842;
 }
 
+.ctt-score-partial {
+  font-weight: 400;
+  font-size: 10px;
+  color: #e0c060;
+  margin-left: 2px;
+  opacity: 0.85;
+}
+
 .ctt-score-sep {
   font-size: 10px;
   opacity: 0.5;

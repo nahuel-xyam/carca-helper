@@ -26,6 +26,8 @@ export interface PlayerInfo {
   name: string;
   color: string;
   score: number;
+  /** Committed + incomplete features + farms (from local engine replay). */
+  partialScore: number;
   isActive: boolean;
 }
 

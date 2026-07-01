@@ -5,10 +5,12 @@
  *
  * Strategy:
  *   1. Poll until window.gameui.gamedatas is ready.
- *   2. Send full state (placed tiles + hand) immediately.
- *   3. After every notif_playTile or notif_pickTile, re-send the full state so
- *      the content script always has a consistent, up-to-date picture.
+ *   2. Fetch notificationHistory for the current table and replay through
+ *      the local engine to compute partial scores.
+ *   3. Send full state after every notif_playTile.
  */
+
+import { computePartialScores } from '../engine/live-score';
 
 const SOURCE = 'CTT_';
 
@@ -20,6 +22,7 @@ export interface PlayerInfo {
   name: string;
   color: string;
   score: number;
+  partialScore: number;
   isActive: boolean;
 }
 
@@ -48,13 +51,16 @@ function sendState(gameui: AnyObj): void {
   const myId = String(gameui['player_id'] ?? '');
   const activeId = String(gd['gamestate']?.['active_player'] ?? myId);
   const playersObj: AnyObj = gd['players'] ?? {};
+
   const players: PlayerInfo[] = Object.values(playersObj).map((p: AnyObj) => {
     const id = String(p['id'] ?? p['player_id'] ?? '');
+    const committed = parseInt(String(p['score'] ?? '0'), 10) || 0;
     return {
       id,
       name: String(p['name'] ?? p['player_name'] ?? ''),
       color: '#' + String(p['color'] ?? '888888').replace(/^#/, ''),
-      score: parseInt(String(p['score'] ?? '0'), 10) || 0,
+      score: committed,
+      partialScore: committed, // TODO: re-enable computePartialScores when ready
       isActive: id === activeId,
     };
   });

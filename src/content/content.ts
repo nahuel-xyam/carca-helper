@@ -26,7 +26,12 @@ function init(): void {
       const placedTypes: string[] = ev.data.placedTypes ?? [];
       const handTypes: string[] = ev.data.handTypes ?? [];
       const deckSize: number = typeof ev.data.deckSize === 'number' ? ev.data.deckSize : 0;
-      const players: PlayerInfo[] = Array.isArray(ev.data.players) ? ev.data.players : [];
+      const players: PlayerInfo[] = Array.isArray(ev.data.players)
+        ? (ev.data.players as PlayerInfo[]).map((p) => ({
+            ...p,
+            partialScore: typeof p.partialScore === 'number' ? p.partialScore : p.score,
+          }))
+        : [];
       deck.setState(placedTypes, handTypes, deckSize, players);
       renderTiles(deck.stats());
     }

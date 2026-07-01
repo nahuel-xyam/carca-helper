@@ -126,7 +126,10 @@ export function renderTiles({ tiles: stats, opponentDrawsNext, players }: DeckSt
       .map((p) => {
         const dot = `<span class="ctt-score-dot" style="background:#${p.color.replace(/^#/,'')}"></span>`;
         const active = p.isActive ? ' ctt-score--active' : '';
-        return `<span class="ctt-score-player${active}">${dot}<span class="ctt-score-name">${p.name}</span><span class="ctt-score-val">${p.score}</span></span>`;
+        const partial = p.partialScore > p.score
+          ? `<span class="ctt-score-partial">(${p.partialScore})</span>`
+          : '';
+        return `<span class="ctt-score-player${active}">${dot}<span class="ctt-score-name">${p.name}</span><span class="ctt-score-val">${p.score}${partial}</span></span>`;
       })
       .join('<span class="ctt-score-sep">vs</span>');
   }
