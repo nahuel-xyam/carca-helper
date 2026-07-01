@@ -5,14 +5,39 @@ import type { DeckStats } from '../engine/deck';
 let gridEl: HTMLElement | null = null;
 let totalEl: HTMLElement | null = null;
 let panelEl: HTMLElement | null = null;
+let combinedEl: HTMLElement | null = null;
 let isOpen = false;
+
+const selectedIds = new Set<string>();
+let getCombinedProbFn: ((a: string, b: string) => number) | null = null;
+
+function refreshSelectionClasses(): void {
+  gridEl?.querySelectorAll<HTMLElement>('.ctt-cell').forEach((el) => {
+    el.classList.toggle('ctt-cell--selected', selectedIds.has(el.dataset['tileId'] ?? ''));
+  });
+}
+
+function updateCombined(): void {
+  if (!combinedEl || !getCombinedProbFn) return;
+  if (selectedIds.size === 2) {
+    const [a, b] = [...selectedIds];
+    const pct = getCombinedProbFn(a, b);
+    combinedEl.innerHTML =
+      `<span class="ctt-combined-dot"></span>` +
+      `Combined chance to draw both: <strong>${pct}%</strong>`;
+    combinedEl.classList.remove('ctt-hidden');
+  } else {
+    combinedEl.classList.add('ctt-hidden');
+  }
+}
 
 function tileUrl(id: string): string {
   return chrome.runtime.getURL(`tiles/${id}.png`);
 }
 
 /** Inject panel styles and build the DOM structure. Call once on page load. */
-export function createPanel(): void {
+export function createPanel(getCombinedProb: (a: string, b: string) => number): void {
+  getCombinedProbFn = getCombinedProb;
   if (document.getElementById('ctt-styles')) return; // already mounted
 
   const style = document.createElement('style');
@@ -53,6 +78,11 @@ export function createPanel(): void {
     '<span class="ctt-legend-item"><span class="ctt-legend-dot ctt-legend-dot--next"></span>next draw</span>' +
     '<span class="ctt-legend-item"><span class="ctt-legend-dot ctt-legend-dot--rest"></span>2p game</span>';
   header.appendChild(legend);
+
+  // Combined probability bar (hidden until 2 tiles are selected)
+  combinedEl = document.createElement('div');
+  combinedEl.className = 'ctt-combined ctt-hidden';
+  header.appendChild(combinedEl);
 
   panelEl.appendChild(header);
 
@@ -104,6 +134,23 @@ export function renderTiles({ tiles: stats, opponentDrawsNext }: DeckStats): voi
       `Tile ${stat.id}: ${stat.inDeck} in deck` +
       (stat.inHand > 0 ? `, ${stat.inHand} in hand` : '') +
       ` / ${stat.total} total`;
+
+    // Click to select/deselect for combined probability
+    cell.dataset['tileId'] = stat.id;
+    if (selectedIds.has(stat.id)) cls += ' ctt-cell--selected';
+    cell.addEventListener('click', () => {
+      if (selectedIds.has(stat.id)) {
+        selectedIds.delete(stat.id);
+      } else if (selectedIds.size < 2) {
+        selectedIds.add(stat.id);
+      } else {
+        // Replace the oldest selection with the new one
+        selectedIds.delete([...selectedIds][0]);
+        selectedIds.add(stat.id);
+      }
+      refreshSelectionClasses();
+      updateCombined();
+    });
 
     const img = document.createElement('img');
     img.className = 'ctt-img';

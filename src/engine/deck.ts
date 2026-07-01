@@ -144,6 +144,34 @@ export class Deck {
     return { tiles, opponentDrawsNext };
   }
 
+  /**
+   * P(you draw ≥1 of tile A AND ≥1 of tile B before the game ends) in a 2p game.
+   * Uses inclusion-exclusion: P(A∩B) = 1 − P(no A) − P(no B) + P(no A∪B).
+   */
+  combinedProb(idA: string, idB: string): number {
+    const N = this.totalInDeck;
+    if (N === 0) return 0;
+    const opponentDrawsNext = [...this.handCounts.values()].some((v) => v > 0);
+    const m = opponentDrawsNext ? Math.ceil(N / 2) : Math.floor(N / 2);
+
+    const kA = this.deckCounts.get(idA) ?? 0;
+    const kB = this.deckCounts.get(idB) ?? 0;
+    // For same tile type, union = kA. For different types, no overlap so union = kA + kB.
+    const kUnion = idA === idB ? kA : kA + kB;
+
+    // P(opponent absorbs all k copies) = ∏_{i=0}^{k-1} (m-i)/(N-i)
+    const pNone = (k: number): number => {
+      if (k <= 0) return 1;
+      if (k > m) return 0;
+      let p = 1;
+      for (let i = 0; i < k; i++) p *= (m - i) / (N - i);
+      return p;
+    };
+
+    const pBoth = 1 - pNone(kA) - pNone(kB) + pNone(kUnion);
+    return Math.round(Math.max(0, Math.min(1, pBoth)) * 100);
+  }
+
   reset(): void {
     this.bgaDeckSize = 0;
     for (const t of TILES) {

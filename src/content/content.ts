@@ -7,7 +7,7 @@ import { createPanel, renderTiles } from '../panel/panel';
 function init(): void {
   const deck = new Deck();
 
-  createPanel();
+  createPanel((a, b) => deck.combinedProb(a, b));
   renderTiles(deck.stats());
 
   // Inject the page-context script so it can access window.WebSocket and window.gameui.
