@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carcassonne Tile Tracker</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f5ede0;
+      color: #1a1a2e;
+      line-height: 1.6;
+    }
+    header {
+      background: #4a3728;
+      color: #f5e6d0;
+      padding: 48px 24px 40px;
+      text-align: center;
+    }
+    header h1 { font-size: 2rem; letter-spacing: 0.01em; }
+    header p { margin-top: 8px; opacity: 0.8; font-size: 1.05rem; }
+    .badge {
+      display: inline-block;
+      margin-top: 20px;
+      background: #c8a97e;
+      color: #4a3728;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 6px 16px;
+      border-radius: 20px;
+      letter-spacing: 0.04em;
+    }
+    main {
+      max-width: 760px;
+      margin: 48px auto;
+      padding: 0 24px;
+    }
+    section { margin-bottom: 40px; }
+    h2 { font-size: 1.25rem; color: #4a3728; margin-bottom: 12px; border-bottom: 2px solid #c8a97e; padding-bottom: 4px; }
+    ul { padding-left: 20px; }
+    ul li { margin-bottom: 6px; }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .feature-card {
+      background: #fff;
+      border: 1px solid #c8a97e;
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .feature-card .icon { font-size: 1.8rem; margin-bottom: 8px; }
+    .feature-card h3 { font-size: 0.95rem; color: #4a3728; margin-bottom: 4px; }
+    .feature-card p { font-size: 0.85rem; color: #555; }
+    .cta {
+      text-align: center;
+      margin: 48px 0;
+    }
+    .cta a {
+      display: inline-block;
+      background: #4a3728;
+      color: #f5e6d0;
+      text-decoration: none;
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      margin: 8px;
+      transition: background 0.15s;
+    }
+    .cta a:hover { background: #6b4f3a; }
+    .cta a.secondary {
+      background: transparent;
+      border: 2px solid #4a3728;
+      color: #4a3728;
+    }
+    .cta a.secondary:hover { background: #ecdfc8; }
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 0.85rem;
+      color: #888;
+      border-top: 1px solid #c8a97e;
+    }
+    footer a { color: #4a3728; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🏰 Carcassonne Tile Tracker</h1>
+  <p>Know what tiles remain. Play smarter on Board Game Arena.</p>
+  <span class="badge">Chrome Extension · Base Game</span>
+</header>
+
+<main>
+
+  <section>
+    <h2>What it does</h2>
+    <p>
+      Carcassonne Tile Tracker is a Chrome extension that reads the live game state
+      of your Carcassonne match on <strong>boardgamearena.com</strong> and displays
+      a floating panel showing every tile type still in the draw pile — along with
+      two key probabilities to help you plan ahead.
+    </p>
+    <div class="features">
+      <div class="feature-card">
+        <div class="icon">🃏</div>
+        <h3>Remaining counts</h3>
+        <p>See how many copies of each of the 24 tile types are left.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🎯</div>
+        <h3>Next draw %</h3>
+        <p>Chance the very next tile drawn from the deck is a specific type.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">📈</div>
+        <h3>2-player game %</h3>
+        <p>Probability you'll draw at least one copy before the game ends.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">✋</div>
+        <h3>Hand-aware</h3>
+        <p>Accounts for whose turn it is to draw — yours or your opponent's.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>How to install</h2>
+    <ul>
+      <li>Download and unzip the latest release from the <a href="https://github.com/nahuel-xyam/carcassonne-tile-tracker/releases">GitHub releases page</a>.</li>
+      <li>Open Chrome and go to <code>chrome://extensions</code>.</li>
+      <li>Enable <strong>Developer mode</strong> (top right toggle).</li>
+      <li>Click <strong>Load unpacked</strong> and select the unzipped <code>dist/</code> folder.</li>
+      <li>Open a Carcassonne game on <a href="https://boardgamearena.com">boardgamearena.com</a> — the 🏰 button appears at the bottom-left.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>How it works</h2>
+    <p>
+      The extension injects a small script into the BGA game iframe that hooks into
+      BGA's own notification system. When a tile is placed, it reads the updated game
+      state directly from the page — no network requests, no external servers.
+      All computation happens locally in your browser.
+    </p>
+  </section>
+
+  <div class="cta">
+    <a href="https://github.com/nahuel-xyam/carcassonne-tile-tracker">View on GitHub</a>
+    <a class="secondary" href="privacy-policy.html">Privacy Policy</a>
+  </div>
+
+</main>
+
+<footer>
+  Built for <a href="https://boardgamearena.com">Board Game Arena</a> ·
+  <a href="https://github.com/nahuel-xyam/carcassonne-tile-tracker">GitHub</a> ·
+  <a href="privacy-policy.html">Privacy Policy</a>
+</footer>
+
+</body>
+</html>
