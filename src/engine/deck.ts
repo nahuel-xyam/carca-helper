@@ -82,6 +82,18 @@ export class Deck {
   }
 
   /**
+   * Delta update: remove one tile of a given BGA numeric type from the deck.
+   * Used for live tile placements when gamedatas is stale.
+   */
+  place(bgaType: string): void {
+    const letter = TILE_MAP[bgaType];
+    if (!letter) return;
+    const cur = this.deckCounts.get(letter) ?? 0;
+    if (cur > 0) this.deckCounts.set(letter, cur - 1);
+    if (this.bgaDeckSize > 0) this.bgaDeckSize = Math.max(0, this.bgaDeckSize - 1);
+  }
+
+  /**
    * Full state update from BGA gamedatas.
    * @param placedTypes BGA numeric type strings for every tile on the board
    *   (including the pre-placed start tile).
@@ -130,21 +142,22 @@ export class Deck {
   }
 
   stats(): DeckStats {
+    // N = bgaDeckSize = tiles confirmed in the draw pile (authoritative from BGA).
+    // Used for restPct (how many tiles you can actually draw over the game).
     const N = this.totalInDeck;
-    // Player has a tile in hand → must place before drawing → opponent draws next.
-    // opponentDraws = how many tiles the opponent will pull from the deck.
-    // Player has hand tile  → opponent draws 1st,3rd,5th,… → ceil(N/2) draws for opponent.
-    // Player hand is empty  → player draws 1st,3rd,5th,…   → floor(N/2) draws for opponent.
+
     const opponentDrawsNext = [...this.handCounts.values()].some((v) => v > 0);
     const opponentDraws = opponentDrawsNext ? Math.ceil(N / 2) : Math.floor(N / 2);
     const tiles = TILES.map((t) => {
       const inDeck = this.deckCounts.get(t.id) ?? 0;
       const inHand = this.handCounts.get(t.id) ?? 0;
-      // nextPct: chance the very next tile drawn from the deck is this type.
-      // When you have a tile in hand, that next draw is the opponent's —
-      // still k/N, just labelled accordingly in the UI.
-      const nextPct = N > 0 ? Math.round((inDeck / N) * 100) : 0;
-      const restPct = Math.round(probAtLeastOne(N, inDeck, opponentDraws) * 100);
+      // restPct: probability you draw ≥1 of this type before the game ends.
+      const restPct = N > 0 ? Math.round(probAtLeastOne(N, inDeck, opponentDraws) * 100) : 0;
+      // nextPct: probability the next draw FROM THE PILE is this type.
+      // Only meaningful if you can actually draw it (restPct > 0).
+      // When restPct=0 the tile is effectively out of reach (opponent will take it),
+      // so showing a non-zero next-draw % would be misleading — clamp to 0.
+      const nextPct = restPct > 0 && N > 0 ? Math.round((inDeck / N) * 100) : 0;
       return {
         id: t.id,
         inDeck,

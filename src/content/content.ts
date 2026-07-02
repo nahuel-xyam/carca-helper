@@ -23,6 +23,7 @@ function init(): void {
     if (ev.data.source !== 'CTT_') return;
 
     if (ev.data.type === 'UPDATE_STATE') {
+      // Full state refresh — used for bootstrap and score updates
       const placedTypes: string[] = ev.data.placedTypes ?? [];
       const handTypes: string[] = ev.data.handTypes ?? [];
       const deckSize: number = typeof ev.data.deckSize === 'number' ? ev.data.deckSize : 0;
@@ -33,6 +34,10 @@ function init(): void {
           }))
         : [];
       deck.setState(placedTypes, handTypes, deckSize, players);
+      renderTiles(deck.stats());
+    } else if (ev.data.type === 'TILE_PLACED') {
+      // Delta update — tile placed live, gamedatas is stale so we track it ourselves
+      deck.place(String(ev.data.bgaType ?? ''));
       renderTiles(deck.stats());
     }
   });
