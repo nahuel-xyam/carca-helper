@@ -275,6 +275,17 @@
   flex-shrink: 0;
 }
 
+.ctt-combined-dot--hint {
+  background: rgba(245, 230, 208, 0.35);
+  border: 1px solid rgba(245, 230, 208, 0.4);
+}
+
+.ctt-combined-hint {
+  opacity: 0.55;
+  font-style: italic;
+  font-weight: 400;
+}
+
 .ctt-combined strong {
   color: #f5c842;
 }
