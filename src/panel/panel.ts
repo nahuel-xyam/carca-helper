@@ -25,9 +25,10 @@ function updateCombined(): void {
     combinedEl.innerHTML =
       `<span class="ctt-combined-dot"></span>` +
       `Combined chance to draw both: <strong>${pct}%</strong>`;
-    combinedEl.classList.remove('ctt-hidden');
   } else {
-    combinedEl.classList.add('ctt-hidden');
+    combinedEl.innerHTML =
+      '<span class="ctt-combined-dot ctt-combined-dot--hint"></span>' +
+      '<span class="ctt-combined-hint">Tap 2 tiles to see combined draw chance</span>';
   }
 }
 
@@ -85,9 +86,12 @@ export function createPanel(getCombinedProb: (a: string, b: string) => number): 
     '<span class="ctt-legend-item"><span class="ctt-legend-dot ctt-legend-dot--rest"></span>2p game</span>';
   header.appendChild(legend);
 
-  // Combined probability bar (hidden until 2 tiles are selected)
+  // Combined probability row — shows hint by default, result when 2 tiles selected
   combinedEl = document.createElement('div');
-  combinedEl.className = 'ctt-combined ctt-hidden';
+  combinedEl.className = 'ctt-combined';
+  combinedEl.innerHTML =
+    '<span class="ctt-combined-dot ctt-combined-dot--hint"></span>' +
+    '<span class="ctt-combined-hint">Tap 2 tiles to see combined draw chance</span>';
   header.appendChild(combinedEl);
 
   panelEl.appendChild(header);
