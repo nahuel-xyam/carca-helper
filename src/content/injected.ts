@@ -71,26 +71,44 @@ function sendState(gameui: AnyObj): void {
   );
 }
 
-function hookNotifications(gameui: AnyObj): void {
-  // Wrap a BGA notification handler so our sendState runs AFTER BGA fully
-  // processes the notification. We use setTimeout(0) to defer our code to the
-  // next event-loop tick, ensuring we never block or throw inside BGA's call.
-  const safeHook = (orig: (n: AnyObj) => unknown) =>
-    function (this: unknown, notif: AnyObj) {
+// Marker used to detect if our hook is still in place
+const HOOK_MARKER = '__ctt_hooked__';
+
+function applyHook(gameui: AnyObj): void {
+  // notif_playTile — fires for every tile placed by any player
+  if (typeof gameui['notif_playTile'] === 'function' && !gameui['notif_playTile'][HOOK_MARKER]) {
+    const orig = gameui['notif_playTile'].bind(gameui);
+    const hooked = function (notif: AnyObj) {
       const result = orig(notif);
-      setTimeout(() => { try { sendState(gameui); } catch { /* ignore */ } }, 0);
+      const bgaType = String((notif['args'] ?? {})['type'] ?? '');
+      if (bgaType) {
+        window.postMessage({ source: SOURCE, type: 'TILE_PLACED', bgaType }, '*');
+      }
       return result;
     };
-
-  gameui['notif_playTile'] = safeHook(gameui['notif_playTile'].bind(gameui));
-
-  if (typeof gameui['notif_pickTile'] === 'function') {
-    gameui['notif_pickTile'] = safeHook(gameui['notif_pickTile'].bind(gameui));
+    (hooked as AnyObj)[HOOK_MARKER] = true;
+    gameui['notif_playTile'] = hooked;
   }
 
-  if (typeof gameui['notif_deck_size'] === 'function') {
-    gameui['notif_deck_size'] = safeHook(gameui['notif_deck_size'].bind(gameui));
+  // notif_winPoints — fires when scores update (cities, roads completed)
+  // Use it to refresh player scores without re-reading tiles.
+  if (typeof gameui['notif_winPoints'] === 'function' && !gameui['notif_winPoints'][HOOK_MARKER]) {
+    const origW = gameui['notif_winPoints'].bind(gameui);
+    const hookedW = function (notif: AnyObj) {
+      const result = origW(notif);
+      setTimeout(() => { try { sendState(gameui); } catch { /* ignore */ } }, 400);
+      return result;
+    };
+    (hookedW as AnyObj)[HOOK_MARKER] = true;
+    gameui['notif_winPoints'] = hookedW;
   }
+}
+
+function hookNotifications(gameui: AnyObj): void {
+  // BGA resets notif_* instance methods during its own init cycle.
+  // We re-apply our hook every 200ms; the HOOK_MARKER prevents double-wrapping.
+  applyHook(gameui);
+  setInterval(() => { try { applyHook(gameui); } catch { /* ignore */ } }, 200);
 }
 
 function tryInit(attempt = 0): void {
