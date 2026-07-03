@@ -81,16 +81,30 @@ export class Deck {
     }
   }
 
+  /** Refresh only scores and deckSize without touching tile counts. */
+  updateScores(players: PlayerInfo[], deckSize: number): void {
+    if (players.length > 0) this._players = players;
+    if (deckSize > 0) this.bgaDeckSize = deckSize;
+  }
+
   /**
-   * Delta update: remove one tile of a given BGA numeric type from the deck.
-   * Used for live tile placements when gamedatas is stale.
+   * Delta update: a tile of the given BGA numeric type was placed on the board.
+   * If it was in the current player's hand, remove it from hand first.
+   * Otherwise remove from the deck (opponent placed their tile).
    */
   place(bgaType: string): void {
     const letter = TILE_MAP[bgaType];
     if (!letter) return;
-    const cur = this.deckCounts.get(letter) ?? 0;
-    if (cur > 0) this.deckCounts.set(letter, cur - 1);
-    if (this.bgaDeckSize > 0) this.bgaDeckSize = Math.max(0, this.bgaDeckSize - 1);
+    const inHand = this.handCounts.get(letter) ?? 0;
+    if (inHand > 0) {
+      // This was our hand tile — clear it from hand
+      this.handCounts.set(letter, inHand - 1);
+    } else {
+      // Opponent's tile — remove from deck
+      const cur = this.deckCounts.get(letter) ?? 0;
+      if (cur > 0) this.deckCounts.set(letter, cur - 1);
+      if (this.bgaDeckSize > 0) this.bgaDeckSize = Math.max(0, this.bgaDeckSize - 1);
+    }
   }
 
   /**

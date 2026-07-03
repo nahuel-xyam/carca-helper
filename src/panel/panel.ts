@@ -10,6 +10,16 @@ let isOpen = false;
 
 const selectedIds = new Set<string>();
 let getCombinedProbFn: ((a: string, b: string) => number) | null = null;
+let onRescanFn: (() => void) | null = null;
+
+/** Trigger a full state rescan (posts CTT_RESCAN to page context). */
+export function setRescanHandler(fn: () => void): void {
+  onRescanFn = fn;
+}
+
+function triggerRescan(): void {
+  onRescanFn?.();
+}
 
 function refreshSelectionClasses(): void {
   gridEl?.querySelectorAll<HTMLElement>('.ctt-cell').forEach((el) => {
@@ -68,7 +78,23 @@ export function createPanel(getCombinedProb: (a: string, b: string) => number): 
   totalEl.className = 'ctt-total';
   totalEl.textContent = '72 / 72';
 
-  headerTop.appendChild(title);
+  const refreshBtn = document.createElement('button');
+  refreshBtn.className = 'ctt-refresh-btn';
+  refreshBtn.title = 'Click to update remaining tiles';
+  refreshBtn.textContent = '↻';
+  refreshBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    refreshBtn.classList.add('ctt-refresh-btn--spinning');
+    triggerRescan();
+    setTimeout(() => refreshBtn.classList.remove('ctt-refresh-btn--spinning'), 800);
+  });
+
+  const titleRow = document.createElement('span');
+  titleRow.style.cssText = 'display:flex;align-items:center;gap:4px;';
+  titleRow.appendChild(title);
+  titleRow.appendChild(refreshBtn);
+
+  headerTop.appendChild(titleRow);
   headerTop.appendChild(totalEl);
   header.appendChild(headerTop);
 
@@ -109,6 +135,7 @@ export function createPanel(getCombinedProb: (a: string, b: string) => number): 
   toggle.addEventListener('click', () => {
     isOpen = !isOpen;
     panelEl!.classList.toggle('ctt-hidden', !isOpen);
+    if (isOpen) triggerRescan();
   });
   root.appendChild(toggle);
 
