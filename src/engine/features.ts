@@ -1,6 +1,6 @@
 import type { Dir } from './types';
 import { Board, DIR_OFFSET } from './board';
-import { TILE_BY_ID } from './tiles';
+import { TILE_BY_ID } from './tiles-full';
 import { rotatedSegments } from './geometry';
 
 export interface SegRef {

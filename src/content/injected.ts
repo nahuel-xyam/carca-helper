@@ -60,7 +60,7 @@ function sendState(gameui: AnyObj): void {
       name: String(p['name'] ?? p['player_name'] ?? ''),
       color: '#' + String(p['color'] ?? '888888').replace(/^#/, ''),
       score: committed,
-      partialScore: committed, // TODO: re-enable computePartialScores when ready
+      partialScore: committed, // partial score disabled
       isActive: id === activeId,
     };
   });
@@ -85,6 +85,7 @@ function applyHook(gameui: AnyObj): void {
       const bgaType = String((notif['args'] ?? {})['type'] ?? '');
       if (bgaType) {
         window.postMessage({ source: SOURCE, type: 'TILE_PLACED', bgaType }, '*');
+
       }
       return result;
     };

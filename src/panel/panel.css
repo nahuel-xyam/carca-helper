@@ -76,7 +76,7 @@
   align-items: center;
   gap: 8px;
   padding: 4px 0 2px;
-  border-bottom: 1px solid rgba(255,255,255,0.12);
+  /* border-bottom: 1px solid rgba(255,255,255,0.12); */
   margin-bottom: 2px;
   flex-wrap: wrap;
 }
@@ -130,28 +130,7 @@
   font-style: italic;
 }
 
-.ctt-legend {
-  display: flex;
-  gap: 10px;
-  font-size: 10px;
-  font-weight: 400;
-  opacity: 0.85;
-}
-
-.ctt-legend-item {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-}
-
-.ctt-legend-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-}
-
-.ctt-legend-dot--next { background: #2a9d8f; }
-.ctt-legend-dot--rest { background: #e07b39; }
+.ctt-legend { display: none; }
 
 .ctt-header-title {
   white-space: nowrap;
@@ -200,6 +179,20 @@
   grid-template-columns: repeat(8, 1fr);
   gap: 0;
   padding: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 360px) {
+  .ctt-grid {
+    grid-template-columns: repeat(8, 40px);
+  }
+}
+/* Small screens: shrink tiles to 40px so 8 columns fit within ~360px */
+@media (max-width: 499px) {
+  .ctt-grid {
+    grid-template-columns: repeat(8, 0.8fr);
+  }
 }
 
 /* ── Individual tile cell ── */
@@ -228,6 +221,12 @@
   image-rendering: pixelated;
   border-radius: 3px;
   display: block;
+}
+
+@media (max-width: 499px) {
+  .ctt-img { width: 40px; height: 40px; }
+  .ctt-label { font-size: 9px; }
+  .ctt-prob { font-size: 8px; }
 }
 
 .ctt-label {
@@ -295,7 +294,7 @@
   gap: 5px;
   padding: 3px 0 1px;
   border-top: 1px solid rgba(255,255,255,0.15);
-  margin-top: 2px;
+  /* margin-top: 2px; */
 }
 
 .ctt-combined-dot {

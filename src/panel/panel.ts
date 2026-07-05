@@ -104,13 +104,7 @@ export function createPanel(getCombinedProb: (a: string, b: string) => number): 
   scoresRow.id = 'ctt-scores';
   header.appendChild(scoresRow);
 
-  // Legend
-  const legend = document.createElement('div');
-  legend.className = 'ctt-legend';
-  legend.innerHTML =
-    '<span class="ctt-legend-item"><span class="ctt-legend-dot ctt-legend-dot--next"></span>next draw</span>' +
-    '<span class="ctt-legend-item"><span class="ctt-legend-dot ctt-legend-dot--rest"></span>2p game</span>';
-  header.appendChild(legend);
+
 
   // Combined probability row — shows hint by default, result when 2 tiles selected
   combinedEl = document.createElement('div');
@@ -157,20 +151,13 @@ export function renderTiles({ tiles: stats, opponentDrawsNext, players }: DeckSt
       .map((p) => {
         const dot = `<span class="ctt-score-dot" style="background:#${p.color.replace(/^#/,'')}"></span>`;
         const active = p.isActive ? ' ctt-score--active' : '';
-        const partial = p.partialScore > p.score
-          ? `<span class="ctt-score-partial">(${p.partialScore})</span>`
-          : '';
+        const partial = '';
         return `<span class="ctt-score-player${active}">${dot}<span class="ctt-score-name">${p.name}</span><span class="ctt-score-val">${p.score}${partial}</span></span>`;
       })
       .join('<span class="ctt-score-sep">vs</span>');
   }
 
-  // Update legend label to clarify whose "next draw" it is
-  const nextLabel = panelEl!.querySelector('.ctt-legend-item:first-child');
-  if (nextLabel) nextLabel.textContent = opponentDrawsNext ? 'opp. next draw' : 'your next draw';
-  const nextDot = document.createElement('span');
-  nextDot.className = 'ctt-legend-dot ctt-legend-dot--next';
-  if (nextLabel) nextLabel.insertBefore(nextDot, nextLabel.firstChild);
+
 
   // Rebuild grid
   gridEl.innerHTML = '';
