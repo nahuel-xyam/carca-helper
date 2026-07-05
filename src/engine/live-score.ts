@@ -47,7 +47,9 @@ export function computePartialScores(
     const rot = (((ori + (K0[letter] ?? 0)) % 4) + 4) % 4 as 0 | 1 | 2 | 3;
     const x = parseInt(String(t['x'] ?? '0'), 10);
     const y = parseInt(String(t['y'] ?? '0'), 10);
-    board.place({ defId: letter, rot, x, y });
+    try {
+      board.place({ defId: letter, rot, x, y });
+    } catch { continue; }
     tilesById.set(parseInt(String(t['id']), 10), { ...t, letter, rot });
   }
 
@@ -90,9 +92,22 @@ export function computePartialScores(
     const letter: string = tile['letter'];
     const rot: number = tile['rot'];
 
-    // Use meepleSegment with a dummy feature guess — try all feature kinds
-    // meepleSegment from bga-map-full uses FEATURE_ORDER[letter][pos-1]
-    const segIndex = meepleSegment(letter, 'city', pos);
+    // Try to extract feature type from DOM classes (e.g. 'partisan_road', 'partisan_city')
+    // Fall back to trying all feature types and picking the first valid segment.
+    const featureClass = Array.from(el.classList).find((c) => /^partisan_(city|road|field|abbey)$/.test(c));
+    const featureType = featureClass ? featureClass.replace('partisan_', '') : null;
+
+    let segIndex = -1;
+    if (featureType) {
+      segIndex = meepleSegment(letter, featureType, pos);
+    }
+    if (segIndex < 0) {
+      // Try all feature kinds in order of likelihood
+      for (const kind of ['city', 'road', 'cloister', 'field'] as const) {
+        segIndex = meepleSegment(letter, kind, pos);
+        if (segIndex >= 0) break;
+      }
+    }
     if (segIndex < 0) continue;
 
     const x = parseInt(String(tile['x']), 10);
