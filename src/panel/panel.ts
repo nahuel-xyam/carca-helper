@@ -165,14 +165,10 @@ export function renderTiles({ tiles: stats, opponentDrawsNext, players }: DeckSt
     const depleted = stat.inDeck === 0 && stat.inHand === 0;
     let cls = 'ctt-cell';
     if (depleted) cls += ' ctt-cell--depleted';
-    if (stat.inHand > 0) cls += ' ctt-cell--inhand';
 
     const cell = document.createElement('div');
     cell.className = cls;
-    cell.title =
-      `Tile ${stat.id}: ${stat.inDeck} in deck` +
-      (stat.inHand > 0 ? `, ${stat.inHand} in hand` : '') +
-      ` / ${stat.total} total`;
+    cell.title = `Tile ${stat.id}: ${stat.inDeck + stat.inHand} remaining / ${stat.total} total`;
 
     // Click to select/deselect for combined probability
     cell.dataset['tileId'] = stat.id;
