@@ -85,7 +85,7 @@ function applyHook(gameui: AnyObj): void {
       const bgaType = String((notif['args'] ?? {})['type'] ?? '');
       if (bgaType) {
         window.postMessage({ source: SOURCE, type: 'TILE_PLACED', bgaType }, '*');
-
+        setTimeout(() => { try { sendScores(gameui); } catch { /* ignore */ } }, 600);
       }
       return result;
     };
