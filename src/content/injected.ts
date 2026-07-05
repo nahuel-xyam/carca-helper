@@ -60,7 +60,7 @@ function sendState(gameui: AnyObj): void {
       name: String(p['name'] ?? p['player_name'] ?? ''),
       color: '#' + String(p['color'] ?? '888888').replace(/^#/, ''),
       score: committed,
-      partialScore: committed, // TODO: re-enable computePartialScores when ready
+      partialScore: committed, // partial score disabled
       isActive: id === activeId,
     };
   });
@@ -75,7 +75,9 @@ function sendState(gameui: AnyObj): void {
 const HOOK_MARKER = '__ctt_hooked__';
 
 function applyHook(gameui: AnyObj): void {
-  // notif_playTile — fires for every tile placed by any player
+  // notif_playTile — fires for every tile placed by any player.
+  // We only send a TILE_PLACED delta — we never call sendState() here
+  // because gamedatas.tiles is a static snapshot and would reset our live counts.
   if (typeof gameui['notif_playTile'] === 'function' && !gameui['notif_playTile'][HOOK_MARKER]) {
     const orig = gameui['notif_playTile'].bind(gameui);
     const hooked = function (notif: AnyObj) {
@@ -83,24 +85,12 @@ function applyHook(gameui: AnyObj): void {
       const bgaType = String((notif['args'] ?? {})['type'] ?? '');
       if (bgaType) {
         window.postMessage({ source: SOURCE, type: 'TILE_PLACED', bgaType }, '*');
+
       }
       return result;
     };
     (hooked as AnyObj)[HOOK_MARKER] = true;
     gameui['notif_playTile'] = hooked;
-  }
-
-  // notif_winPoints — fires when scores update (cities, roads completed)
-  // Use it to refresh player scores without re-reading tiles.
-  if (typeof gameui['notif_winPoints'] === 'function' && !gameui['notif_winPoints'][HOOK_MARKER]) {
-    const origW = gameui['notif_winPoints'].bind(gameui);
-    const hookedW = function (notif: AnyObj) {
-      const result = origW(notif);
-      setTimeout(() => { try { sendState(gameui); } catch { /* ignore */ } }, 400);
-      return result;
-    };
-    (hookedW as AnyObj)[HOOK_MARKER] = true;
-    gameui['notif_winPoints'] = hookedW;
   }
 }
 
@@ -124,5 +114,29 @@ function tryInit(attempt = 0): void {
     if (attempt < 60) setTimeout(() => tryInit(attempt + 1), 500);
   }
 }
+
+/** Send only player scores (not tile counts) — used for manual rescan. */
+function sendScores(gameui: AnyObj): void {
+  const gd: AnyObj = gameui['gamedatas'];
+  if (!gd) return;
+  const myId = String(gameui['player_id'] ?? '');
+  const activeId = String(gd['gamestate']?.['active_player'] ?? myId);
+  const playersObj: AnyObj = gd['players'] ?? {};
+  const deckSize: number = parseInt(String(gd['deck_size'] ?? '0'), 10);
+  const players = Object.values(playersObj).map((p: AnyObj) => {
+    const id = String(p['id'] ?? p['player_id'] ?? '');
+    const committed = parseInt(String(p['score'] ?? '0'), 10) || 0;
+    return { id, name: String(p['name'] ?? ''), color: '#' + String(p['color'] ?? '888888').replace(/^#/, ''), score: committed, partialScore: committed, isActive: id === activeId };
+  });
+  window.postMessage({ source: SOURCE, type: 'SCORE_UPDATE', players, deckSize }, '*');
+}
+
+// Listen for rescan requests from the panel (content script posts CTT_ RESCAN)
+window.addEventListener('message', (ev: MessageEvent) => {
+  if (ev.data?.source === SOURCE && ev.data?.type === 'RESCAN') {
+    const gameui = (window as AnyObj)['gameui'];
+    if (gameui) { try { sendScores(gameui); } catch { /* ignore */ } }
+  }
+});
 
 tryInit();

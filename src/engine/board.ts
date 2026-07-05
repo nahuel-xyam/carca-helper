@@ -1,5 +1,5 @@
 import type { ActionResult, Dir, PlacedTile } from './types';
-import { TILE_BY_ID } from './tiles';
+import { TILE_BY_ID } from './tiles-full';
 import { rotatedEdges } from './geometry';
 
 export interface Pos {
